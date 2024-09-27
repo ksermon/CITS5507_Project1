@@ -6,8 +6,8 @@
 #include <assert.h>
 
 // Define the number of rows and columns
-#define NROWS 100
-#define NCOLS 100
+#define NROWS 1000
+#define NCOLS 1000
 
 // Structure to represent a sparse matrix in CRS format
 typedef struct {
