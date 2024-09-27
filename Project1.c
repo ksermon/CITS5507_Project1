@@ -5,9 +5,8 @@
 #include <time.h>
 #include <assert.h>
 
-#define PROB 0.01
-#define NROWS 100000
-#define NCOLS 100000
+#define NROWS 10000
+#define NCOLS 10000
 
 typedef struct {
     size_t nrows;
@@ -347,36 +346,15 @@ void freeSparseMatrix(SparseMatrix* mat) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
+    if (argc != 3) {
         fprintf(stderr, "Usage: %s <num_threads>\n", argv[0]);
         return EXIT_FAILURE;
     }
     double start_time = omp_get_wtime();
 
     omp_set_num_threads(atoi(argv[1]));
-    printf("Generating sparse matrix with %d threads...\n", omp_get_max_threads());
-
-    SparseMatrix* X = generateSparseMatrix(PROB);
-    printf("Sparse Matrix X generated with %zu non-zero elements.\n", X->nnz);
-
-    SparseMatrix* Y = generateSparseMatrix(PROB);
-    printf("Sparse Matrix Y generated with %zu non-zero elements.\n", Y->nnz);
-
-    int* B_X = X->B;
-    int* C_X = X->C;
-    int* B_Y = Y->B;
-    int* C_Y = Y->C;
-
-    printf("\nFirst 10 elements of B and C for Matrix X:\n");
-    size_t print_limit_X = (X->B_size < 10) ? X->B_size : 10;
-    for (size_t i = 0; i < print_limit_X; i++) {
-        printf("X: B[%zu] = %d, C[%zu] = %d\n", i, B_X[i], i, C_X[i]);
-    }
-    printf("\nFirst 10 elements of B and C for Matrix Y:\n");
-    size_t print_limit_Y = (Y->B_size < 10) ? Y->B_size : 10;
-    for (size_t i = 0; i < print_limit_Y; i++) {
-        printf("Y: B[%zu] = %d, C[%zu] = %d\n", i, B_Y[i], i, C_Y[i]);
-    }
+    SparseMatrix* X = generateSparseMatrix(atof(argv[2]));
+    SparseMatrix* Y = generateSparseMatrix(atof(argv[2]));
 
     SparseMatrix* Z = (SparseMatrix*)malloc(sizeof(SparseMatrix));
     if (Z == NULL) {
@@ -396,16 +374,8 @@ int main(int argc, char* argv[]) {
 
     sparse_matrix_multiply(X, Y, Z);
 
-    printf("\nSparse Matrix Z generated with %zu non-zero elements.\n", Z->nnz);
-
-    writeArrayToFile("FileB.csv", Z->B, Z->B_size);
-    writeArrayToFile("FileC.csv", Z->C, Z->B_size);
-
-    printf("First 10 elements of B and C for Matrix Z:\n");
-    size_t print_limit_Z = (Z->B_size < 10) ? Z->B_size : 10;
-    for (size_t i = 0; i < print_limit_Z; i++) {
-        printf("Z: B[%zu] = %d, C[%zu] = %d\n", i, Z->B[i], i, Z->C[i]);
-    }
+    writeArrayToFile("FileB", Z->B, Z->B_size);
+    writeArrayToFile("FileC", Z->C, Z->B_size);
 
     freeSparseMatrix(X);
     freeSparseMatrix(Y);
@@ -413,8 +383,7 @@ int main(int argc, char* argv[]) {
 
     double end_time = omp_get_wtime();
     double elapsed_time = end_time - start_time;
-
-    printf("Time taken to generate and process matrices:\n%f seconds.\n", elapsed_time);
+    printf("Threads: %d, Time: %f\n", atoi(argv[1]), elapsed_time);
 
     return EXIT_SUCCESS;
 }

@@ -1,42 +1,35 @@
 #!/bin/bash
-#SBATCH --job-name=thread_benchmark
-#SBATCH --output=thread_benchmark_%j.out
-#SBATCH --error=thread_benchmark_%j.err
-#SBATCH --time=00:30:00        # Adjust based on expected runtime
-#SBATCH --ntasks=1
-#SBATCH --cpus-per-task=256    # Maximum number of threads to test
-#SBATCH --mem=128G             # Adjust based on memory requirements
 
-# Load necessary modules (adjust as per your environment)
-module load gcc/9.3.0       # Example: GCC compiler with OpenMP support
+#SBATCH --job-name=kgs_thread_benchmark    # Job name
+#SBATCH --nodes=1                          # Maximum number of nodes
+#SBATCH --account=courses0101              # Account name
+#SBATCH --partition=work                   # Partition name
+#SBATCH --output=output_%j.txt             # Output file
+#SBATCH --error=error_%j.txt               # Error file
+#SBATCH --ntasks=1                         # Number of tasks
+#SBATCH --cpus-per-task=256                # Number of CPUs per task
+#SBATCH --time=02:00:00                    # Maximum time limit
 
-# Define the range of threads to test
-THREAD_COUNTS=(1 2 4 8 16 32 64 128 256)
+# Load OpenMP environment settings
+module load gcc                             # Ensure gcc or another OpenMP-compatible compiler is loaded
 
-# Probability and number of matrices
-PROB=0.01
-NUM_MATRICES=100000
+# Set the list of thread values (1 to 256)
+thread_values=(1 2 4 8 16 32 64 128 256)
 
-# Output file to store results
-RESULTS="benchmark_results.txt"
-echo "Threads,Time(s)" > $RESULTS
+# Set the list of probabilities
+probabilities=(0.01 0.02 0.5)
 
-echo "Starting benchmarking..."
+# Export the OpenMP environment variable
+export OMP_DYNAMIC=FALSE
 
-for THREADS in "${THREAD_COUNTS[@]}"
-do
-    echo "Running with $THREADS threads..."
-    
-    # Run the program and capture the output
-    OUTPUT=$(./Project1 $PROB $THREADS)
-    
-    # Extract the execution time from the program's output
-    TIME=$(echo "$OUTPUT" | grep "Time taken to generate and process matrices" | awk '{print $7}')
-    
-    # Log the thread count and execution time
-    echo "$THREADS,$TIME" >> $RESULTS
-    
-    echo "Completed with $THREADS threads in $TIME seconds."
+# Loop over probabilities
+for prob in "${probabilities[@]}"; do
+    # Loop over thread values
+    for threads in "${thread_values[@]}"; do
+        export OMP_NUM_THREADS=$threads
+        echo "Running with $threads threads and probability $prob"
+        srun --cpus-per-task=$threads ./Project1 $threads $prob >> results_${prob}.txt
+    done
 done
 
-echo "Benchmarking completed. Results saved to $RESULTS."
+echo "All benchmarks completed."
