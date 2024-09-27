@@ -2,7 +2,7 @@
 #SBATCH --job-name=thread_benchmark
 #SBATCH --output=thread_benchmark_%j.out
 #SBATCH --error=thread_benchmark_%j.err
-#SBATCH --time=02:00:00        # Adjust based on expected runtime
+#SBATCH --time=00:30:00        # Adjust based on expected runtime
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=256    # Maximum number of threads to test
 #SBATCH --mem=128G             # Adjust based on memory requirements
