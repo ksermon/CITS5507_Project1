@@ -8,9 +8,7 @@
 #SBATCH --mem=4G
 
 # set OpenMP environment variables
-export OMP_NUM_THREADS=16
-export OMP_PLACES=cores
-export OMP_PROC_BIND=spread
+export OMP_NUM_THREADS=1
 
 # launch OpenMP code
 srun -N 1 -n 1 -c ${OMP_NUM_THREADS} ./Project1
