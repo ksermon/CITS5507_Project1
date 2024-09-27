@@ -74,6 +74,56 @@
 #define ROWS 100        // number of rows (#TODO 100,000 in final)
 #define COLS 100        // number of columns (#TODO 100,000 in final)
 
+struct sparse_matrix {
+    int nrows;
+    int ncols;
+    int *offset;
+    int *index;
+    double *value;
+};
+
+typedef struct sparse_matrix sparse_matrix_t;
+
+// init_sparse_matrix() initialises a sparse matrix, with given number of rows/columns/non-zero values
+void init_sparse_matrix(sparse_matrix_t *input_matrix, int nrows, int ncols, int nnonzero) {
+    // Check input is valid
+    assert(nrows >= 0);
+    assert(ncols >= 0);
+    assert(nnonzero >= 0);
+
+    // Set inital matrix values to 0
+    memset(input_matrix, 0x0, sizeof(*input_matrix));
+
+    // Allocate input values and sufficient memory for matrix
+    input_matrix->nrows = nrows;
+    input_matrix->ncols = ncols;
+    input_matrix->offset = (int *)malloc((nrows + 1) * sizeof(*input_matrix->offset));
+    input_matrix->index = (int *)malloc(nnonzero * sizeof(*input_matrix->index));
+    input_matrix->value = (double *)malloc(nnonzero * sizeof(*input_matrix->value));
+
+    // Check memory allocation was successful
+    if ((input_matrix->offset == NULL) || (input_matrix->index == NULL) || (input_matrix->value == NULL)) {
+        fprintf(stderr, "ERROR: Allocation to the sparse matrix failed.\n");
+        exit(1);
+    }
+
+    memset(input_matrix->offset, 0x0, (nrows + 1) * sizeof(*input_matrix->offset));
+}
+
+// empty_sparse_matrix() frees memory allocated to a sparse matrix
+void empty_sparse_matrix(sparse_matrix_t *input_matrix) {
+    free(input_matrix->offset);
+    free(input_matrix->index);
+    free(input_matrix->value);
+    memset(input_matrix, 0x0, sizeof(*input_matrix));
+}
+
+void generate_random() {
+    // generate random number between 1 and 100 for each entry of the matrix,
+    // and the entry is non-zero if the random number is between 0 and 1
+    // generate another small integer between 1 and 10 and store it as the entry in that matrix location
+}
+
 int main() {
     omp_set_num_threads(4);
     #pragma omp parallel 
