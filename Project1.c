@@ -7,8 +7,8 @@
 
 // Define the number of rows and columns
 #define PROB 0.01
-#define NROWS 10000
-#define NCOLS 10000
+#define NROWS 100000
+#define NCOLS 100000
 
 // Structure to represent a sparse matrix in CRS format
 typedef struct {
@@ -241,8 +241,11 @@ void freeSparseMatrix(SparseMatrix *mat) {
  * @param argv Argument vector.
  * @return int Exit status.
  */
-int main() {
-    omp_set_num_threads(omp_get_max_threads());
+int main(int argc, char *argv[]) {
+    // Start timing
+    double start_time = omp_get_wtime();
+
+    omp_set_num_threads(atoi(argv[1]));
     printf("Generating sparse matrix with %d threads...\n", omp_get_max_threads());
     // Generate Sparse Matrix X
     SparseMatrix *X = generateSparseMatrix(PROB, omp_get_max_threads());
@@ -271,9 +274,20 @@ int main() {
         printf("Y: B[%zu] = %d, C[%zu] = %d\n", i, B_Y[i], i, C_Y[i]);
     }
 
+    // Calculate the product of X and Y using their sparse matrix representations
+    // Use BX, CX and BY, CY to complete X*Y
+    // The result should be stored in a new sparse matrix Z
+    // Z = X * Y
+
     // Clean up allocated memory
     freeSparseMatrix(X);
     freeSparseMatrix(Y);
+
+    // End timing
+    double end_time = omp_get_wtime();
+    double elapsed_time = end_time - start_time;
+
+    printf("Time taken to generate and process matrices:\n%f seconds.\n", elapsed_time);
 
     return EXIT_SUCCESS;
 }
