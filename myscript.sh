@@ -11,4 +11,4 @@
 export OMP_NUM_THREADS=8
 
 cc -o Project1 -fopenmp ./Project1.c
-srun -c 8 ./Project1 16
+srun -c 8 ./Project1 256
