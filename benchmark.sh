@@ -7,7 +7,6 @@
 #SBATCH --output=output_%j.txt             # Output file
 #SBATCH --error=error_%j.txt               # Error file
 #SBATCH --ntasks=1                         # Number of tasks
-#SBATCH --cpus-per-task=256                # Number of CPUs per task
 #SBATCH --time=02:00:00                    # Maximum time limit
 
 # Load OpenMP environment settings
