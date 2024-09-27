@@ -5,7 +5,7 @@
 #SBATCH --partition=work
 #SBATCH --account=courses0101
 #SBATCH --mem=4G
-#SBATCH --time=00:01:00
+#SBATCH --time=00:05:00
 #SBATCH --output=kgs_Project1.out
 
 export OMP_NUM_THREADS=8
