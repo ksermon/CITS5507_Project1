@@ -11,4 +11,4 @@
 export OMP_NUM_THREADS=1
 
 # launch OpenMP code
-srun -N 1 -n 1 -c ${OMP_NUM_THREADS} ./Project1
+srun -N 1 -n 1 -c 8 ./Project1
