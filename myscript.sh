@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=kgs_Project1
-#SBATCH --nodes=4
+#SBATCH --nodes=1
 #SBATCH --tasks-per-node=1
 #SBATCH --cpus-per-task=28
 #SBATCH --partition=work
