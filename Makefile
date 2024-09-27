@@ -2,7 +2,7 @@
 
 # Compiler and flags
 CC = gcc
-CFLAGS = -fopenmp -Wall -Wextra -pedantic -Wshadow -Wfloat-equal -Wconversion -Wunreachable-code -Werror -O2 -g
+CFLAGS = -fopenmp -Wall -Wextra -pedantic -std=c11 -fsanitize=address -Wshadow -Wfloat-equal -Wunreachable-code -Werror -O2 -g
 
 # Target executable
 TARGET = Project1

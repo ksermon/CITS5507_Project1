@@ -1,137 +1,295 @@
-#include <omp.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <omp.h>
+#include <time.h>
+#include <assert.h>
 
-// generate three pairs of sparse matrices, X and Y with size 100000 x 100000
-// when an entry of the matrix can be non-zero with probabilities 0.01, 0.02, and 0.05
-    // e.g. in first case can generate random number between 1 and 100 for each entry of the matrix,
-    // and the entry is non-zero if the random number is between 0 and 1
-    // generate another small integer between 1 and 10 and store it as the entry in that matrix location
+// Define the number of rows and columns
+#define NROWS 100
+#define NCOLS 100
 
-// create the two arrays B and C for row compression for each matrix
-    // e.g. for multiplying two matrices X and Y of size 100000 x 100000 each
-    // generate two matrices XB and XC (for X) and YB and YC (for Y)
-    // and use these four matrices for multiplying X and Y
+// Structure to represent a sparse matrix in CRS format
+typedef struct {
+    size_t nrows;
+    size_t ncols;
+    size_t nnz;        // Total number of non-zero elements
+    size_t *row_ptr;   // Row pointer array (size nrows + 1)
+    int *col_ind;      // Column indices array (size nnz)
+    int *values;       // Non-zero values array (size nnz)
+    int *B;            // Additional array for multiplication (size B_size)
+    int *C;            // Additional array for multiplication (size B_size)
+    size_t B_size;     // Size of B and C arrays
+} SparseMatrix;
 
-    // row compression format example, where column indices of the non-zero elements in each row are stored:
-    // int A[4][4] = {{2, 0, 0, 1},
-    //                {0, 0, 0, 3},
-    //                {0, 1, 0, 0},
-    //                {0, 0, 1, 0}};
-    // would be represented by two matrices,
-    // the B matrix stores the actual elements in each row:
-    // int B[4][2] = {{2, 1},
-    //                {3},
-    //                {1},
-    //                {1}};
-    // and the C matrix stores the column indices of the non-zero elements in each row:
-    // int C[4][2] = {{0, 3},
-    //                {3},
-    //                {1},
-    //                {2}};
+/**
+ * @brief Generates a pseudo-random sparse matrix in CRS format.
+ *
+ * @param prob Probability of an element being non-zero.
+ * @param num_threads Number of OpenMP threads to use.
+ * @return Pointer to the generated SparseMatrix.
+ */
+SparseMatrix* generateSparseMatrix(double prob, int num_threads) {
+    // Initialize OpenMP
+    omp_set_num_threads(num_threads);
 
-    // If there is no non-zero element in a row, the corresponding rows of B and C will store two consecutive 0s.
-    // For example:
-    // int A = {{2, 0, 0, 1},
-    //          {0, 0, 0, 3},
-    //          {0, 0, 0, 0},
-    //          {0, 0, 1, 0}};
-    // would be represented by:
-    // int B[4][2] = {{2, 1},
-    //                {3},
-    //                {0, 0},
-    //                {1}};
-    // int C[4][2] = {{0, 3},
-    //                {3},
-    //                {0, 0},
-    //                {2}};
-
-
-
-// [1] 2 marks for ordinary matrix multiplication algorithm
-// Write an ordinary matrix multiplication algorithm so that we can check your results.
-// The number of rows, number of columns should be declared at the top of your code using #define directives.
-
-// [2] 4 marks for correctly generating the B and C matrices
-// Write separate code for generating the B and C matrices given a matrix X.
-// You can generate the matrix X inside this code
-
-// [3] 6 marks for performance evaluation
-// Multiply the three sets of matrices above and evaluate their running times
-    // You have to write OpenMP code and vary the number of threads
-    // Though Setonix has 28 cores you can use more threads than 28.
-    // You have to find the number of threads that gives the best performance for each of these cases
-
-    // Performance evaluation section should include:
-        // - experiments for determining the optimal number of threads for the best performance for the three matrix sizes
-        // - an analysis of performance using the four scheduling strategies for scheduling for loops for the matrix multiplication problem for one of the three matrix sizes
-    
-    // Code should write the final results for the B and C matrices in two separate files named FileB and FileC
-        // FILE *fp, *fopen();
-        // fp=fopen("FileB","w"); /*opens the file named FileB for writing*/
-        // fprintf(fp,"%d", i); /* write variable i to the file*/
-    // You should allocate matrices using dynamic allocation.
-
-#define ROWS 100        // number of rows (#TODO 100,000 in final)
-#define COLS 100        // number of columns (#TODO 100,000 in final)
-
-struct sparse_matrix {
-    int nrows;
-    int ncols;
-    int *offset;
-    int *index;
-    double *value;
-};
-
-typedef struct sparse_matrix sparse_matrix_t;
-
-// init_sparse_matrix() initialises a sparse matrix, with given number of rows/columns/non-zero values
-void init_sparse_matrix(sparse_matrix_t *input_matrix, int nrows, int ncols, int nnonzero) {
-    // Check input is valid
-    assert(nrows >= 0);
-    assert(ncols >= 0);
-    assert(nnonzero >= 0);
-
-    // Set inital matrix values to 0
-    memset(input_matrix, 0x0, sizeof(*input_matrix));
-
-    // Allocate input values and sufficient memory for matrix
-    input_matrix->nrows = nrows;
-    input_matrix->ncols = ncols;
-    input_matrix->offset = (int *)malloc((nrows + 1) * sizeof(*input_matrix->offset));
-    input_matrix->index = (int *)malloc(nnonzero * sizeof(*input_matrix->index));
-    input_matrix->value = (double *)malloc(nnonzero * sizeof(*input_matrix->value));
-
-    // Check memory allocation was successful
-    if ((input_matrix->offset == NULL) || (input_matrix->index == NULL) || (input_matrix->value == NULL)) {
-        fprintf(stderr, "ERROR: Allocation to the sparse matrix failed.\n");
-        exit(1);
+    // Allocate memory for the SparseMatrix structure
+    SparseMatrix *mat = (SparseMatrix*) malloc(sizeof(SparseMatrix));
+    if (mat == NULL) {
+        perror("Failed to allocate memory for SparseMatrix");
+        exit(EXIT_FAILURE);
     }
 
-    memset(input_matrix->offset, 0x0, (nrows + 1) * sizeof(*input_matrix->offset));
-}
+    mat->nrows = NROWS;
+    mat->ncols = NCOLS;
+    mat->nnz = 0;
+    mat->B_size = 0;
 
-// empty_sparse_matrix() frees memory allocated to a sparse matrix
-void empty_sparse_matrix(sparse_matrix_t *input_matrix) {
-    free(input_matrix->offset);
-    free(input_matrix->index);
-    free(input_matrix->value);
-    memset(input_matrix, 0x0, sizeof(*input_matrix));
-}
+    // Allocate memory for row_ptr array
+    mat->row_ptr = (size_t*) malloc((mat->nrows + 1) * sizeof(size_t));
+    if (mat->row_ptr == NULL) {
+        perror("Failed to allocate memory for row_ptr");
+        free(mat);
+        exit(EXIT_FAILURE);
+    }
+    mat->row_ptr[0] = 0; // Initialize the first element
 
-void generate_random() {
-    // generate random number between 1 and 100 for each entry of the matrix,
-    // and the entry is non-zero if the random number is between 0 and 1
-    // generate another small integer between 1 and 10 and store it as the entry in that matrix location
-}
+    // Static variable to ensure unique seed per call
+    static int seed_increment = 0;
+    int current_increment;
 
-int main() {
-    omp_set_num_threads(4);
-    #pragma omp parallel 
+    // Assign unique increment for this call
+    #pragma omp critical
     {
-    #pragma omp for
-        for (int i = 0; i < 10; i++) {
-            printf("Thread %d, i = %d\n", omp_get_thread_num(), i);
+        current_increment = seed_increment++;
+    }
+
+    // First Pass: Count non-zero elements per row
+    size_t total_nnz = 0; // Total number of non-zero elements
+    #pragma omp parallel
+    {
+        unsigned int seed = (unsigned int)(time(NULL) + current_increment) ^ omp_get_thread_num();
+
+        #pragma omp for schedule(static) reduction(+:total_nnz)
+        for (size_t i = 0; i < mat->nrows; i++) {
+            size_t row_nnz = 0;
+            for (size_t j = 0; j < mat->ncols; j++) {
+                double rand_prob = (double)rand_r(&seed) / RAND_MAX;
+                if (rand_prob < prob) {
+                    row_nnz++;
+                }
+            }
+            mat->row_ptr[i + 1] = row_nnz;
+            total_nnz += row_nnz;
         }
     }
-    return 0;
+    mat->nnz = total_nnz;
+
+    // Compute cumulative row_ptr
+    for (size_t i = 0; i < mat->nrows; i++) {
+        mat->row_ptr[i + 1] += mat->row_ptr[i];
+    }
+
+    // Allocate memory for col_ind and values arrays
+    mat->col_ind = (int*) malloc(mat->nnz * sizeof(int));
+    mat->values = (int*) malloc(mat->nnz * sizeof(int));
+    if (mat->col_ind == NULL || mat->values == NULL) {
+        perror("Failed to allocate memory for col_ind or values");
+        free(mat->row_ptr);
+        free(mat);
+        exit(EXIT_FAILURE);
+    }
+
+    // Calculate the number of zero rows
+    size_t num_zero_rows = 0;
+    for (size_t i = 0; i < mat->nrows; i++) {
+        if (mat->row_ptr[i + 1] == mat->row_ptr[i]) {
+            num_zero_rows++;
+        }
+    }
+
+    // Allocate memory for B and C arrays
+    // Each zero row requires two entries in B and C
+    mat->B_size = mat->nnz + (2 * num_zero_rows);
+    mat->B = (int*) malloc(mat->B_size * sizeof(int));
+    mat->C = (int*) malloc(mat->B_size * sizeof(int));
+    if (mat->B == NULL || mat->C == NULL) {
+        perror("Failed to allocate memory for B or C");
+        free(mat->col_ind);
+        free(mat->values);
+        free(mat->row_ptr);
+        free(mat);
+        exit(EXIT_FAILURE);
+    }
+
+    // Precompute starting indices for B and C
+    size_t *bc_start_indices = (size_t*) malloc(mat->nrows * sizeof(size_t));
+    if (bc_start_indices == NULL) {
+        perror("Failed to allocate memory for bc_start_indices");
+        free(mat->B);
+        free(mat->C);
+        free(mat->col_ind);
+        free(mat->values);
+        free(mat->row_ptr);
+        free(mat);
+        exit(EXIT_FAILURE);
+    }
+
+    size_t bc_total = 0;
+    for (size_t i = 0; i < mat->nrows; i++) {
+        bc_start_indices[i] = bc_total;
+        if (mat->row_ptr[i + 1] == mat->row_ptr[i]) {
+            bc_total += 2; // Two zeros for empty rows
+        } else {
+            bc_total += mat->row_ptr[i + 1] - mat->row_ptr[i];
+        }
+    }
+
+    // Ensure that bc_total matches B_size
+    assert(bc_total == mat->B_size);
+
+    // Second Pass: Fill col_ind, values, B, and C arrays
+    #pragma omp parallel
+    {
+        unsigned int seed = (unsigned int)(time(NULL) + current_increment) ^ omp_get_thread_num();
+
+        #pragma omp for schedule(static)
+        for (size_t i = 0; i < mat->nrows; i++) {
+            size_t row_start = mat->row_ptr[i];
+            size_t row_end = mat->row_ptr[i + 1];
+            size_t row_nnz = row_end - row_start;
+            size_t bc_idx = bc_start_indices[i];
+
+            if (row_nnz == 0) {
+                // Entire row is zero; add two zeros to B and C
+                mat->B[bc_idx] = 0;
+                mat->C[bc_idx] = 0;
+                mat->B[bc_idx + 1] = 0;
+                mat->C[bc_idx + 1] = 0;
+            } else {
+                // Generate unique column indices
+                size_t *cols = (size_t*) malloc(row_nnz * sizeof(size_t));
+                if (cols == NULL) {
+                    perror("Failed to allocate memory for cols");
+                    exit(EXIT_FAILURE);
+                }
+
+                size_t count = 0;
+                while (count < row_nnz) {
+                    size_t col = rand_r(&seed) % mat->ncols;
+                    // Check for duplicates
+                    int duplicate = 0;
+                    for (size_t k = 0; k < count; k++) {
+                        if (cols[k] == col) {
+                            duplicate = 1;
+                            break;
+                        }
+                    }
+                    if (!duplicate) {
+                        cols[count++] = col;
+                    }
+                }
+
+                // Assign the columns and values
+                for (size_t k = 0; k < row_nnz; k++) {
+                    size_t j = cols[k];
+                    int value = (int)(rand_r(&seed) % 10 + 1); // Values between 1 and 10
+
+                    mat->col_ind[row_start + k] = (int)j;
+                    mat->values[row_start + k] = value;
+
+                    mat->B[bc_idx + k] = value;
+                    mat->C[bc_idx + k] = (int)j;
+                }
+
+                free(cols);
+
+                // Optional: Assert to ensure correct filling
+                assert((bc_idx + row_nnz) <= mat->B_size);
+            }
+        }
+    }
+
+    // Free the auxiliary bc_start_indices array
+    free(bc_start_indices);
+
+    return mat;
+}
+
+/**
+ * @brief Frees the memory allocated for a SparseMatrix.
+ *
+ * @param mat Pointer to the SparseMatrix to be freed.
+ */
+void freeSparseMatrix(SparseMatrix *mat) {
+    if (mat != NULL) {
+        free(mat->B);
+        free(mat->C);
+        free(mat->row_ptr);
+        free(mat->col_ind);
+        free(mat->values);
+        free(mat);
+    }
+}
+
+/**
+ * @brief Main function to demonstrate the generation of sparse matrices.
+ *
+ * @param argc Argument count.
+ * @param argv Argument vector.
+ * @return int Exit status.
+ */
+int main(int argc, char *argv[]) {
+    // Check for correct number of command-line arguments
+    if (argc != 3) {
+        fprintf(stderr, "Usage: %s <probability> <num_threads>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    // Parse probability
+    double prob = atof(argv[1]);
+    if (prob < 0.0 || prob > 1.0) {
+        fprintf(stderr, "Error: Probability must be between 0 and 1.\n");
+        return EXIT_FAILURE;
+    }
+
+    // Parse number of threads
+    int num_threads = atoi(argv[2]);
+    if (num_threads < 1 || num_threads > 256) {
+        fprintf(stderr, "Error: Number of threads must be between 1 and 256.\n");
+        return EXIT_FAILURE;
+    }
+
+    // Generate Sparse Matrix X
+    SparseMatrix *X = generateSparseMatrix(prob, num_threads);
+    printf("Sparse Matrix X generated with %zu non-zero elements.\n", X->nnz);
+
+    // Generate Sparse Matrix Y
+    SparseMatrix *Y = generateSparseMatrix(prob, num_threads);
+    printf("Sparse Matrix Y generated with %zu non-zero elements.\n", Y->nnz);
+
+    // Access B and C for X and Y
+    int *B_X = X->B;
+    int *C_X = X->C;
+    int *B_Y = Y->B;
+    int *C_Y = Y->C;
+
+    // To check, print first 10 elements of B and C for X and Y
+    printf("\nFirst 10 elements of B and C for Matrix X:\n");
+    size_t print_limit_X = (X->B_size < 10) ? X->B_size : 10;
+    for (size_t i = 0; i < print_limit_X; i++) {
+        printf("X: B[%zu] = %d, C[%zu] = %d\n", i, B_X[i], i, C_X[i]);
+    }
+
+    printf("\nFirst 10 elements of B and C for Matrix Y:\n");
+    size_t print_limit_Y = (Y->B_size < 10) ? Y->B_size : 10;
+    for (size_t i = 0; i < print_limit_Y; i++) {
+        printf("Y: B[%zu] = %d, C[%zu] = %d\n", i, B_Y[i], i, C_Y[i]);
+    }
+
+    // Clean up allocated memory
+    freeSparseMatrix(X);
+    freeSparseMatrix(Y);
+
+    return EXIT_SUCCESS;
 }
