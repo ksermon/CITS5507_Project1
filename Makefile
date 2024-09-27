@@ -5,10 +5,10 @@ CC = gcc
 CFLAGS = -fopenmp -Wall -Wextra -pedantic -Wshadow -Wfloat-equal -Wconversion -Wunreachable-code -Werror -O2 -g
 
 # Target executable
-TARGET = Project1
+TARGET = MM_transposed
 
 # Source and object files
-SRCS = Project1.c
+SRCS = MM_transposed.c
 OBJS = $(SRCS:.c=.o)
 
 # Default rule
