@@ -4,8 +4,8 @@
 #include <omp.h>
 #include <math.h>
 
-#define NCOLS 10000
-#define NROWS 10000
+#define NCOLS 100000
+#define NROWS 100000
 
 void generate_random_matrix(int **matrix, int rows, int cols) {
     // Seed the random number generator
