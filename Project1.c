@@ -242,12 +242,14 @@ void freeSparseMatrix(SparseMatrix *mat) {
  * @return int Exit status.
  */
 int main() {
+    omp_set_num_threads(omp_get_max_threads());
+    printf("Generating sparse matrix with %d threads...\n", omp_get_max_threads());
     // Generate Sparse Matrix X
-    SparseMatrix *X = generateSparseMatrix(PROB, omp_get_num_threads());
+    SparseMatrix *X = generateSparseMatrix(PROB, omp_get_max_threads());
     printf("Sparse Matrix X generated with %zu non-zero elements.\n", X->nnz);
 
     // Generate Sparse Matrix Y
-    SparseMatrix *Y = generateSparseMatrix(PROB, omp_get_num_threads());
+    SparseMatrix *Y = generateSparseMatrix(PROB, omp_get_max_threads());
     printf("Sparse Matrix Y generated with %zu non-zero elements.\n", Y->nnz);
 
     // Access B and C for X and Y
