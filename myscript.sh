@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --nodes=4
+#SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --partition=work
 #SBATCH --account=courses0101

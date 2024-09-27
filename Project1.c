@@ -33,6 +33,7 @@ typedef struct {
 SparseMatrix* generateSparseMatrix(double prob, int num_threads) {
     // Initialize OpenMP
     omp_set_num_threads(num_threads);
+    printf("Generating sparse matrix with %d threads...\n", num_threads);
 
     // Allocate memory for the SparseMatrix structure
     SparseMatrix *mat = (SparseMatrix*) malloc(sizeof(SparseMatrix));
