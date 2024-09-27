@@ -1,4 +1,0 @@
-srun: warning: can't run 1 processes on 4 nodes, setting nnodes to 1
-srun: error: nid002041: task 0: Exited with exit code 13
-srun: Terminating StepId=16234248.0
-slurmstepd: error: execve(): /scratch/courses0101/ksermon/CITS5507_Project1/./Project1: Permission denied

@@ -1,4 +1,0 @@
-srun: warning: can't run 1 processes on 4 nodes, setting nnodes to 1
-slurmstepd: error: Detected 1 oom_kill event in StepId=16226898.0. Some of the step tasks have been OOM Killed.
-srun: error: nid002457: task 0: Out Of Memory
-srun: Terminating StepId=16226898.0

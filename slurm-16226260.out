@@ -1,2 +1,0 @@
-srun: warning: can't run 1 processes on 4 nodes, setting nnodes to 1
-srun: error: Unable to create step for job 16226260: More processors requested than permitted

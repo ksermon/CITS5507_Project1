@@ -1,7 +1,0 @@
-cc1: fatal error: ./MM_init.c: No such file or directory
-compilation terminated.
-slurmstepd: error: Detected 1 oom_kill event in StepId=16223877.0. Some of the step tasks have been OOM Killed.
-srun: error: nid002578: task 11: Out Of Memory
-srun: Terminating StepId=16223877.0
-slurmstepd: error: *** STEP 16223877.0 ON nid002578 CANCELLED AT 2024-09-27T14:31:08 ***
-srun: error: Task 11 reported exit for a second time.
