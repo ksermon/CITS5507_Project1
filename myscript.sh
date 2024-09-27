@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --nodes=1
-#SBATCH --ntasks=1
+#SBATCH --ntasks=4
 #SBATCH --partition=work
 #SBATCH --account=courses0101
 #SBATCH --mem=4G
