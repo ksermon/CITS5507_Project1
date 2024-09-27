@@ -6,8 +6,9 @@
 #include <assert.h>
 
 // Define the number of rows and columns
-#define NROWS 1000
-#define NCOLS 1000
+#define PROB 0.01
+#define NROWS 10000
+#define NCOLS 10000
 
 // Structure to represent a sparse matrix in CRS format
 typedef struct {
@@ -239,33 +240,13 @@ void freeSparseMatrix(SparseMatrix *mat) {
  * @param argv Argument vector.
  * @return int Exit status.
  */
-int main(int argc, char *argv[]) {
-    // Check for correct number of command-line arguments
-    if (argc != 3) {
-        fprintf(stderr, "Usage: %s <probability> <num_threads>\n", argv[0]);
-        return EXIT_FAILURE;
-    }
-
-    // Parse probability
-    double prob = atof(argv[1]);
-    if (prob < 0.0 || prob > 1.0) {
-        fprintf(stderr, "Error: Probability must be between 0 and 1.\n");
-        return EXIT_FAILURE;
-    }
-
-    // Parse number of threads
-    int num_threads = atoi(argv[2]);
-    if (num_threads < 1 || num_threads > 256) {
-        fprintf(stderr, "Error: Number of threads must be between 1 and 256.\n");
-        return EXIT_FAILURE;
-    }
-
+int main() {
     // Generate Sparse Matrix X
-    SparseMatrix *X = generateSparseMatrix(prob, num_threads);
+    SparseMatrix *X = generateSparseMatrix(PROB, omp_get_num_threads());
     printf("Sparse Matrix X generated with %zu non-zero elements.\n", X->nnz);
 
     // Generate Sparse Matrix Y
-    SparseMatrix *Y = generateSparseMatrix(prob, num_threads);
+    SparseMatrix *Y = generateSparseMatrix(PROB, omp_get_num_threads());
     printf("Sparse Matrix Y generated with %zu non-zero elements.\n", Y->nnz);
 
     // Access B and C for X and Y
