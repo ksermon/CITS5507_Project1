@@ -1,0 +1,6 @@
+gcc: fatal error: input file 'MM_init' is the same as output file
+compilation terminated.
+slurmstepd: error: Detected 1 oom_kill event in StepId=16223702.0. Some of the step tasks have been OOM Killed.
+srun: error: nid002342: task 5: Out Of Memory
+srun: Terminating StepId=16223702.0
+slurmstepd: error: *** STEP 16223702.0 ON nid002342 CANCELLED AT 2024-09-27T14:29:19 ***

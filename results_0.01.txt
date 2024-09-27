@@ -1,0 +1,2 @@
+Threads: 1, Time: 11.028304
+Threads: 1, Time: 11.242439

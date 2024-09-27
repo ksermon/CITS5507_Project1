@@ -1,0 +1,27 @@
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+slurmstepd: error: Detected 1 oom_kill event in StepId=16250696.2. Some of the step tasks have been OOM Killed.
+srun: error: nid002026: task 0: Out Of Memory
+srun: Terminating StepId=16250696.2
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted
+srun: error: Unable to create step for job 16250696: More processors requested than permitted

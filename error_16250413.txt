@@ -1,0 +1,19 @@
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: error: Unable to create step for job 16250413: More processors requested than permitted
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 16250413.2 ON nid002026 CANCELLED AT 2024-09-28T02:17:17 ***
+slurmstepd: error: *** JOB 16250413 ON nid002026 CANCELLED AT 2024-09-28T02:17:17 ***
