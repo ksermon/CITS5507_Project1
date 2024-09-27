@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=MM_init
+#SBATCH --job-name=kgs_Project1
 #SBATCH --nodes=4
 #SBATCH --tasks-per-node=1
 #SBATCH --cpus-per-task=28
