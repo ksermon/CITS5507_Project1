@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -fopenmp -Wall -Wextra -pedantic -Wshadow -Wfloat-equal -Wconversion -Wunreachable-code -Werror -O2 -g
 
 # Target executable
-TARGET = MM_transposed
+TARGET = MM_init
 
 # Source and object files
 SRCS = MM_transposed.c
