@@ -5,5 +5,5 @@
 #SBATCH --account=courses0101
 #SBATCH --mem=4G
 #SBATCH --time=00:01:00
-cc -o MM_init -fopenmp ./MM_init
+cc -o MM_init -fopenmp ./MM_init.c
 srun ./MM_init
