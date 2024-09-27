@@ -13,4 +13,4 @@ export OMP_PLACES=cores
 export OMP_PROC_BIND=spread
 
 # launch OpenMP code
-srun --export=all -n 1 -c ${OMP_NUM_THREADS} ./MM_init
+srun --export=all -n 1 -c ${OMP_NUM_THREADS} ./Project1 0.01 28
